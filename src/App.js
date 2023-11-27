@@ -12,6 +12,7 @@ function App() {
   ]);
 
   let [like, setLike] = useState(0);
+  let [modal, setModal] = useState(false); //모달이 닫힌 상태가 기본
 
   function addLike() {
     console.log(1);
@@ -53,6 +54,15 @@ function App() {
     });
   };
 
+  const openOrCloseModal = () => {
+    // if (modal == false) {
+    //   setModal(true);
+    // } else {
+    //   setModal(false);
+    // }
+    modal == false ? setModal(true) : setModal(false);
+  };
+
   return (
     <div className="App">
       <div className="black-nav">
@@ -74,15 +84,22 @@ function App() {
       </div>
 
       <div className="list">
-        <h4>{titles[2]}</h4>
+        <h4 onClick={openOrCloseModal}>{titles[2]}</h4>
         <p>2월 17일 발행</p>
       </div>
+      {modal == true ? <Modal name={titles[1]} /> : null}
+    </div>
+  );
+}
 
-      <div className="modal">
-        <h4>제목</h4>
-        <p>날짜</p>
-        <p>상세내용</p>
-      </div>
+// 모달 컴포넌트
+function Modal(props) {
+  const title = props.name;
+  return (
+    <div className="modal">
+      <h4>{title}</h4>
+      <p>날짜</p>
+      <p>상세내용</p>
     </div>
   );
 }
