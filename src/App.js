@@ -13,6 +13,8 @@ function App() {
 
   let [likes, setLikes] = useState([0, 0, 0]);
   let [modal, setModal] = useState(false); //모달이 닫힌 상태가 기본
+  let [titleIndex, setTitleIndex] = useState(2);
+  let [inputValue, setInputValue] = useState("");
 
   function addLike(index) {
     // setLikes(likes + 1);
@@ -26,8 +28,8 @@ function App() {
 
   function changeTitle() {
     let newTitleArray;
-    setTitles((titles) => {
-      newTitleArray = [...titles];
+    setTitles((currentTitles) => {
+      newTitleArray = [...currentTitles];
       newTitleArray[0] = "여자 코트 추천";
       return newTitleArray;
     });
@@ -64,8 +66,30 @@ function App() {
     });
   };
 
-  const openOrCloseModal = () => {
+  const openOrCloseModal = (index) => {
+    console.log("index in openClose", index);
     modal == false ? setModal(true) : setModal(false);
+  };
+
+  const createPosting = () => {
+    setTitles((currentTitles) => {
+      let newTitleArray = [...currentTitles];
+      // newTitleArray.push(inputValue); 배열 맨 뒤에 추가
+      newTitleArray.unshift(inputValue); //맨 앞에 추가
+      return newTitleArray;
+    });
+    setInputValue("");
+  };
+
+  const deletePosting = (index) => {
+    console.log(index);
+    setTitles((currentTitles) => {
+      let newTitleArray = [...currentTitles];
+      // newTitleArray.pop(); 맨 뒤의 녀석만 제거
+      // index 위치에서 1개의 요소를 제거
+      newTitleArray.splice(index, 1);
+      return newTitleArray;
+    });
   };
 
   return (
@@ -96,48 +120,91 @@ function App() {
 
       {titles.map((item, index) => {
         //param1: 요소, param2: 인덱스
-        console.log(index);
+
         return (
           <div className="list" key={index}>
-            <h4 onClick={openOrCloseModal}>
+            <h4
+              onClick={() => {
+                openOrCloseModal();
+                setTitleIndex(() => {
+                  return index;
+                });
+              }}
+            >
               {titles[index]}
+              {/* span태그를 누르면, h4, div태그까지 이벤트 버블링이 발생한다.
+              따라서 모달창이 열리게 된다. 이를 막기 위해 이벤트 객체를 사용한다.
+              e.stopPropagation
+              */}
               <span
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation(); //이벤트 버블링 방지
                   addLike(index);
                 }}
               >
                 👍
               </span>
-              {likes[index]}
+              {/* {likes[index]} 이벤트 버블링 때문에 주석처리.
+              따로 컴포넌트로 만들거나 아래처럼 태그로 감싼 뒤 
+              프로퍼게이션 방지처리.*/}
+              <span onClick={(e) => e.stopPropagation()}>{likes[index]}</span>
             </h4>
             <button onClick={changeTitle}>타이틀 변경</button>
             <button onClick={sortTitle}>타이틀 정렬</button>
+            <button
+              onClick={() => {
+                deletePosting(index);
+              }}
+            >
+              삭제
+            </button>
             <p>2월 17일 발행</p>
           </div>
         );
       })}
+      <div>
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => {
+            // e: event 객체.
+            // 이벤트가 발생한 html 태그에 입력한 값
+            setInputValue(e.target.value);
+            console.log("inputValue", inputValue);
+          }}
+        ></input>
+        <button onClick={createPosting}>저장</button>
+      </div>
 
       {modal == true ? (
         <Modal
-          title={titles[0]}
+          titles={titles}
           color={"skyblue"}
           handleChangeTitle={changeTitle}
+          titleIndex={titleIndex}
         />
       ) : null}
+
+      <input type="range"></input>
+      <input type="checkbox"></input>
+      <input type="date"></input>
+      <select></select>
+      <textarea></textarea>
     </div>
   );
 }
 
 // 모달 컴포넌트
 function Modal(props) {
-  const [title, color, handleChangeTitle] = [
-    props.title,
+  const [titles, color, handleChangeTitle, titleIndex] = [
+    props.titles,
     props.color,
     props.handleChangeTitle,
+    props.titleIndex,
   ];
   return (
     <div className="modal" style={{ background: color }}>
-      <h4>{title}</h4>
+      <h4>{titles[titleIndex]}</h4>
       <p>날짜</p>
       <p>상세내용</p>
       <button onClick={handleChangeTitle}>글 수정</button>
