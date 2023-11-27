@@ -11,17 +11,20 @@ function App() {
     "가-남자 코트 추천3",
   ]);
 
-  let [like, setLike] = useState(0);
+  let [likes, setLikes] = useState([0, 0, 0]);
   let [modal, setModal] = useState(false); //모달이 닫힌 상태가 기본
 
-  function addLike() {
-    console.log(1);
-    // setLike(like + 1);
-    setLike((prevState) => prevState + 1);
+  function addLike(index) {
+    // setLikes(likes + 1);
+    console.log("index!:", index);
+    setLikes((currentLikes) => {
+      const newLikesArray = [...currentLikes];
+      newLikesArray[index] += 1;
+      return newLikesArray;
+    });
   }
 
   function changeTitle() {
-    let index;
     let newTitleArray;
     setTitles((titles) => {
       newTitleArray = [...titles];
@@ -46,6 +49,13 @@ function App() {
   //   setTitles(newTitleArray);
   // };
 
+  // const sortTitle = () => {
+  //   // 비동기에서는 최신의 값을 가져오지 못할 가능성이 있음
+  //   let newTitleArray = [...titles];
+  //   newTitleArray.sort((a, b) => a.localeCompare(b));
+  //   setTitles(newTitleArray);
+  // };
+
   const sortTitle = () => {
     setTitles((currentTitles) => {
       let newTitleArray = [...currentTitles];
@@ -55,11 +65,6 @@ function App() {
   };
 
   const openOrCloseModal = () => {
-    // if (modal == false) {
-    //   setModal(true);
-    // } else {
-    //   setModal(false);
-    // }
     modal == false ? setModal(true) : setModal(false);
   };
 
@@ -69,7 +74,7 @@ function App() {
         <h4 style={{ color: "red", fontSize: "16px" }}>블로그임</h4>
       </div>
 
-      <div className="list">
+      {/* <div className="list">
         <h4>
           {titles[0]} <span onClick={addLike}>👍</span> {like}
         </h4>
@@ -87,19 +92,55 @@ function App() {
         <h4 onClick={openOrCloseModal}>{titles[2]}</h4>
         <p>2월 17일 발행</p>
       </div>
-      {modal == true ? <Modal name={titles[1]} /> : null}
+      */}
+
+      {titles.map((item, index) => {
+        //param1: 요소, param2: 인덱스
+        console.log(index);
+        return (
+          <div className="list" key={index}>
+            <h4 onClick={openOrCloseModal}>
+              {titles[index]}
+              <span
+                onClick={() => {
+                  addLike(index);
+                }}
+              >
+                👍
+              </span>
+              {likes[index]}
+            </h4>
+            <button onClick={changeTitle}>타이틀 변경</button>
+            <button onClick={sortTitle}>타이틀 정렬</button>
+            <p>2월 17일 발행</p>
+          </div>
+        );
+      })}
+
+      {modal == true ? (
+        <Modal
+          title={titles[0]}
+          color={"skyblue"}
+          handleChangeTitle={changeTitle}
+        />
+      ) : null}
     </div>
   );
 }
 
 // 모달 컴포넌트
 function Modal(props) {
-  const title = props.name;
+  const [title, color, handleChangeTitle] = [
+    props.title,
+    props.color,
+    props.handleChangeTitle,
+  ];
   return (
-    <div className="modal">
+    <div className="modal" style={{ background: color }}>
       <h4>{title}</h4>
       <p>날짜</p>
       <p>상세내용</p>
+      <button onClick={handleChangeTitle}>글 수정</button>
     </div>
   );
 }
